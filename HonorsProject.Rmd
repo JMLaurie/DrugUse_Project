@@ -1,0 +1,147 @@
+---
+title: "2314 Honors Project"
+author: "Jake Laurie"
+date: "2023-10-24"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+> Introduction
+
+> My goal is to use statistical analysis and visualizations to show a relationship between people aged 18-20, and the use of alcohol and marijuana. I am doing this to see if over this three-year period one of these illegal drugs until 21 has a higher usage rate from year to year over the three-year period. I expect for the usage to be similar over those three years and for the average use of both to be similar as well.
+
+
+
+```{r}
+#First, I installed and loaded all the packages needed to complete the project. 
+```
+
+
+```{r}
+ pacman::p_load(pacman, corrplot, tidyverse, rio, psych, tsibble, lubridate, ggplot2, gridExtra)
+```
+
+```{r}
+#Next, I imported the csv data set as a tibble, and filtered the data to look at only the
+#necessary information. 
+```
+
+
+```{r}
+df <- import("~/INEG 2314/drug-use-by-age.csv") %>%
+  as_tibble() %>%
+    filter(age >= 18) %>%
+  filter(age <= 21) %>%
+    mutate(
+    `alcohol-use` = (`alcohol-use`/100) * `n`,
+    `marijuana-use` = (`marijuana-use`/100) * `n`) %>%
+  select(c("age","n","alcohol-use", "alcohol-frequency", "marijuana-use", "marijuana-frequency")) %>%
+  print()
+```
+
+
+```{r}
+#I then used different ways to explore the dataset and see if there was any interesting
+#connections between the data.
+```
+
+
+```{r}
+barplot(df$`alcohol-use`)
+df %>% summary()
+df %>% describe()
+```
+
+```{r}
+#From the exploratory data I was able to come up with differences in the usage of
+#alcohol and marijuana from year-to-year for 18 to 21 year olds.
+```
+
+
+```{r}
+alc_18_21 <- df %>%
+    select(c("alcohol-use", "n"))
+alc_18_21
+```
+
+```{r}
+alc_test_1819 <- prop.test(x = c(1449.303, 1436.058), n = c(2469, 2223))
+alc_test_1920 <- prop.test(x = c(1436.058, 1582.887), n = c(2223, 2271))
+alc_test_2021 <- prop.test(x = c(1582.887, 1958.528), n = c(2271, 2354))
+# Printing the results
+
+alc_test_1819
+alc_test_1920
+alc_test_2021
+```
+
+```{r}
+#From the data we can see that the p-value is always below the alpha 0.05, so we can
+#conclude that for every year, from 18 to 21, that the average usage of alcohol will 
+#increase. This is is because all of the numbers in our interval are negative meaning
+#that the average from the year above is larger than that below. Since there is a
+#statistical difference each year the data is increasing at a fast pace.
+```
+
+
+```{r}
+mar_18_21 <- df %>%
+    select(c("marijuana-use", "n", "age"))
+mar_18_21
+```
+
+```{r}
+mar_test_1819 <- prop.test(x = c(832.053, 742.482), n = c(2469, 2223))
+mar_test_1920 <- prop.test(x = c(742.482, 772.14), n = c(2223, 2271))
+mar_test_2021 <- prop.test(x = c(772.14, 776.820), n = c(2271, 2354))
+# Printing the results
+
+mar_test_1819
+mar_test_1920
+mar_test_2021
+```
+
+```{r}
+#From the output we can see the exact opposite for marijuana use and how the p-value
+#is always greater than our alpha of 0.05. With this we can conclude that there is 
+#significant evidence to show that the difference in average usage from year-to-year
+#is equal to 0 and does not increase or decrease. With 0 in the interval each year then the
+#total change is still close to that of the start. Where the usage between 18 and 21 year 
+#olds is not that different compared to that of alcohol which is the opposite.
+```
+
+
+```{r}
+
+alc_fre<-ggplot(df, aes(x=`age`, y=`alcohol-frequency`)) + 
+geom_bar(stat="identity", width=1, color="white",
+         fill=rgb(0.1,0.4,0.5,0.7))
+
+mar_fre<-ggplot(df, aes(x=`age`, y=`marijuana-frequency`)) + 
+geom_bar(stat="identity", width=1, color="white",
+         fill=rgb(0.1,0.8,0.1,0.7))
+
+grid.arrange(alc_fre, mar_fre, ncol=2)
+```
+
+```{r}
+#These graphs show data of how frequently (days of the year) alcohol and marijuana
+#are used. We can see that alcohol graph is skewed left while the marijuana graph
+#again is uniform. This is the same distribution that the usage followed, so it is
+#interesting to see that an increase in new user usage also increases the frequency that 
+#the group of users also increases their use frequency.
+```
+
+
+> CONCLUSIONS
+
+> After looking at graphs and numerical summaries of the data, my hypothesis of the data is incorrect in that the usage of marijuana and alcohol do not follow the same distribution from year-to-year. I was able to see that the average alcohol usage increases significantly each year, while marijuana tends to be the same each year. When examining the median number of times each drug is used in a year, the distribtions tend to look the same as well. I believe this might be from the popularity of drinking and how it may be easier to have new users versus that of marijuana who may find its target age around 18 and it doesn't add any new users. I think to lower usages in both categories, we can find ways to make sure to not get new users, during times where the data increases significantly.
+
+
+
+
+
+
